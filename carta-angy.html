@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carta para Angy — Mi Eternidad</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --p0: #0d0015;
+    --p1: #1a0030;
+    --p2: #2d0052;
+    --p3: #4a0080;
+    --p4: #6600b3;
+    --p5: #8800e6;
+    --p6: #aa44ff;
+    --p7: #cc88ff;
+    --p8: #eeccff;
+    --gold: #d4a843;
+    --gold2: #f0c96a;
+    --rose: #ff66cc;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--p0);
+    min-height: 100vh;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── STARFIELD ── */
+  #stars-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEARTS RAIN ── */
+  .hearts-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .heart-drop {
+    position: absolute;
+    top: -60px;
+    animation: heartFall linear infinite;
+    opacity: 0;
+    font-size: 20px;
+    filter: drop-shadow(0 0 6px var(--p5));
+  }
+  @keyframes heartFall {
+    0%   { transform: translateY(0) rotate(0deg) scale(0.6); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.7; }
+    100% { transform: translateY(110vh) rotate(360deg) scale(1.1); opacity: 0; }
+  }
+
+  /* ── NEBULA BG ── */
+  .nebula {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .nebula::before {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(102,0,179,.35) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    animation: nebulaPulse 8s ease-in-out infinite alternate;
+  }
+  .nebula::after {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(170,68,255,.25) 0%, transparent 70%);
+    bottom: -150px; right: -100px;
+    animation: nebulaPulse 10s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes nebulaPulse {
+    from { transform: scale(1) translate(0,0); opacity: .7; }
+    to   { transform: scale(1.15) translate(30px, 20px); opacity: 1; }
+  }
+
+  /* ── SCROLL WRAPPER ── */
+  .scroll-wrapper {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+  }
+
+  /* ── PARCHMENT CARD ── */
+  .card {
+    max-width: 780px;
+    width: 100%;
+    background: linear-gradient(160deg, rgba(26,0,48,.92) 0%, rgba(45,0,82,.95) 50%, rgba(18,0,35,.92) 100%);
+    border: 1px solid rgba(170,68,255,.35);
+    border-radius: 4px;
+    padding: 64px 72px;
+    position: relative;
+    box-shadow:
+      0 0 80px rgba(102,0,179,.5),
+      0 0 160px rgba(102,0,179,.25),
+      inset 0 0 60px rgba(170,68,255,.08);
+    animation: cardFloat 6s ease-in-out infinite;
+  }
+  @keyframes cardFloat {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+  }
+
+  /* ornament corners */
+  .card::before, .card::after {
+    content: '';
+    position: absolute;
+    width: 48px; height: 48px;
+    border-color: var(--gold);
+    border-style: solid;
+    opacity: .55;
+  }
+  .card::before { top: 16px; left: 16px; border-width: 2px 0 0 2px; }
+  .card::after  { bottom: 16px; right: 16px; border-width: 0 2px 2px 0; }
+
+  .corner-tr, .corner-bl {
+    position: absolute;
+    width: 48px; height: 48px;
+    border-color: var(--gold);
+    border-style: solid;
+    opacity: .55;
+  }
+  .corner-tr { top: 16px; right: 16px; border-width: 2px 2px 0 0; }
+  .corner-bl { bottom: 16px; left: 16px; border-width: 0 0 2px 2px; }
+
+  /* ── HEADER ── */
+  .epigraph {
+    text-align: center;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--p7);
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: fadeUp .8s ease forwards .3s;
+  }
+  .title-main {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(22px, 4vw, 34px);
+    color: var(--gold2);
+    text-align: center;
+    line-height: 1.3;
+    text-shadow: 0 0 30px rgba(212,168,67,.6), 0 0 60px rgba(212,168,67,.3);
+    opacity: 0;
+    animation: fadeUp .9s ease forwards .5s;
+    margin-bottom: 8px;
+  }
+  .title-sub {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--p7);
+    text-align: center;
+    letter-spacing: 1px;
+    opacity: 0;
+    animation: fadeUp .9s ease forwards .7s;
+    margin-bottom: 0;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 28px 0;
+    opacity: 0;
+    animation: fadeUp .8s ease forwards .9s;
+  }
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .divider-heart {
+    color: var(--p6);
+    font-size: 18px;
+    filter: drop-shadow(0 0 8px var(--p5));
+    animation: heartbeat 1.8s ease-in-out infinite;
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15%       { transform: scale(1.25); }
+    30%       { transform: scale(1); }
+    45%       { transform: scale(1.15); }
+    60%       { transform: scale(1); }
+  }
+
+  /* ── BODY TEXT ── */
+  .letter-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(15px, 2vw, 18px);
+    line-height: 1.95;
+    color: var(--p8);
+    font-style: italic;
+    font-weight: 300;
+    position: relative;
+  }
+
+  .drop-cap {
+    float: left;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 72px;
+    line-height: .8;
+    margin-right: 8px;
+    margin-top: 8px;
+    color: var(--gold2);
+    text-shadow: 0 0 30px rgba(212,168,67,.7), 0 0 60px rgba(212,168,67,.4);
+    font-style: normal;
+  }
+
+  .paragraph {
+    margin-bottom: 24px;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .paragraph.visible {
+    animation: fadeUp .9s ease forwards;
+  }
+
+  .highlight {
+    color: var(--gold2);
+    font-style: italic;
+    font-weight: 400;
+    text-shadow: 0 0 20px rgba(212,168,67,.4);
+  }
+
+  .glow-word {
+    color: var(--p7);
+    text-shadow: 0 0 15px var(--p5), 0 0 30px var(--p4);
+    font-weight: 400;
+  }
+
+  /* ── MIDDLE ORNAMENT ── */
+  .mid-ornament {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 22px;
+    color: var(--p6);
+    filter: drop-shadow(0 0 10px var(--p5));
+    letter-spacing: 10px;
+    opacity: 0;
+    animation: fadeUp .8s ease forwards;
+  }
+
+  /* ── SIGNATURE ── */
+  .signature-block {
+    margin-top: 36px;
+    text-align: right;
+    opacity: 0;
+    animation: fadeUp .9s ease forwards;
+  }
+  .sig-label {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--p6);
+    margin-bottom: 6px;
+  }
+  .sig-name {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 30px;
+    color: var(--gold2);
+    text-shadow: 0 0 20px rgba(212,168,67,.5);
+  }
+  .sig-hearts {
+    font-size: 16px;
+    color: var(--p6);
+    filter: drop-shadow(0 0 6px var(--p5));
+    letter-spacing: 4px;
+    margin-top: 4px;
+  }
+
+  /* ── FOOTER ── */
+  .card-footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(170,68,255,.2);
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: rgba(204,136,255,.4);
+    opacity: 0;
+    animation: fadeUp .8s ease forwards;
+  }
+
+  /* ── FLOATING HEARTS (decorative inside card) ── */
+  .card-hearts {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+  .card-heart {
+    position: absolute;
+    font-size: 14px;
+    color: var(--p6);
+    opacity: .12;
+    animation: floatAround linear infinite;
+    filter: drop-shadow(0 0 4px var(--p5));
+  }
+  @keyframes floatAround {
+    0%   { transform: translateY(0) rotate(0deg); opacity: .08; }
+    50%  { opacity: .18; }
+    100% { transform: translateY(-40px) rotate(20deg); opacity: .08; }
+  }
+
+  /* ── KEYFRAMES ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── GLOWING ORB ── */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    mix-blend-mode: screen;
+  }
+  .orb1 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(136,0,230,.18) 0%, transparent 70%);
+    top: 10vh; right: 5vw;
+    animation: orbDrift 12s ease-in-out infinite alternate;
+  }
+  .orb2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,102,204,.12) 0%, transparent 70%);
+    bottom: 15vh; left: 5vw;
+    animation: orbDrift 9s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes orbDrift {
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(40px, 30px) scale(1.1); }
+  }
+
+  /* ── PULSE RING around card ── */
+  .pulse-ring {
+    position: absolute;
+    inset: -3px;
+    border: 1px solid rgba(170,68,255,.3);
+    border-radius: 6px;
+    animation: ringPulse 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .pulse-ring2 {
+    position: absolute;
+    inset: -8px;
+    border: 1px solid rgba(170,68,255,.15);
+    border-radius: 8px;
+    animation: ringPulse 3s ease-in-out infinite .5s;
+    pointer-events: none;
+  }
+  @keyframes ringPulse {
+    0%, 100% { opacity: .4; transform: scale(1); }
+    50%       { opacity: .9; transform: scale(1.003); }
+  }
+
+  @media (max-width: 600px) {
+    .card { padding: 40px 28px; }
+    .drop-cap { font-size: 54px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+<div class="nebula"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- ── HEARTS RAIN ── -->
+<div class="hearts-layer" id="heartsLayer"></div>
+
+<div class="scroll-wrapper">
+  <div class="card">
+    <div class="pulse-ring"></div>
+    <div class="pulse-ring2"></div>
+    <div class="corner-tr"></div>
+    <div class="corner-bl"></div>
+
+    <!-- decorative hearts inside card -->
+    <div class="card-hearts" id="cardHearts"></div>
+
+    <!-- HEADER -->
+    <p class="epigraph">— ΕΠΙΣΤΟΛῊ ΤΗΣ ΑΙΩΝΙΟΤΗΤΑΣ —</p>
+    <h1 class="title-main">Carta a Angy,<br>mi Eternidad</h1>
+    <p class="title-sub">Dictada por el corazón, sellada por los astros</p>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-heart">♥</span>
+      <span class="divider-heart" style="animation-delay:.3s">♥</span>
+      <span class="divider-heart" style="animation-delay:.6s">♥</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- BODY -->
+    <div class="letter-body">
+
+      <div class="paragraph" data-delay="1.1">
+        <span class="drop-cap">A</span>
+        ngy, tú cuya hermosura no tiene principio ni fin —
+        como el <span class="glow-word">cosmos que se extiende</span> más allá de todo horizonte conocido,
+        así es la magnitud de tu belleza ante mis ojos.
+        Pues dime, ¿qué poeta podría agotar los versos suficientes
+        para describir lo que eres?
+      </div>
+
+      <div class="mid-ornament" data-delay="1.4">♥ · ♥ · ♥</div>
+
+      <div class="paragraph" data-delay="1.6">
+        Como <span class="highlight">Helios en su carro de fuego</span>, tus ojos poseen una luz
+        incandescente que atraviesa la oscuridad más profunda
+        y llena de fulgor todo cuanto toca —
+        <span class="glow-word">poderosa como el espacio mismo</span>,
+        vasta como las constelaciones que los dioses sembraron en la noche.
+        Brillan con la fuerza de mil soles y la ternura de la luna más serena.
+      </div>
+
+      <div class="paragraph" data-delay="1.9">
+        Y tu sonrisa, oh Angy — es la más grande de las maravillas
+        que Afrodita pudo haber concedido a mortal alguna.
+        Cuando despuntas en esa sonrisa, el mundo entero cede ante su resplandor.
+        No hay tiniebla que resista, no hay peso que permanezca en mi pecho:
+        todo se convierte en <span class="highlight">alegría pura, en la más dichosa de las felicidades</span>
+        que he conocido en todos mis días.
+      </div>
+
+      <div class="mid-ornament" data-delay="2.2">♥ · ♥ · ♥</div>
+
+      <div class="paragraph" data-delay="2.4">
+        Cada instante a tu lado es un don que los propios Cronos envidiarían,
+        pues un solo segundo contigo equivale a vivir
+        <span class="highlight">mil y un millones de eternidades</span>.
+        El tiempo, que a todos consume, se detiene junto a ti —
+        y yo, que fui hecho de lo efímero,
+        me vuelvo <span class="glow-word">eterno en tu presencia</span>.
+        Por eso cada momento que compartimos lo atesoro como el oro más puro.
+      </div>
+
+      <div class="paragraph" data-delay="2.7">
+        Cada segundo a tu lado lo aprecio con el alma entera,
+        y lo agradezco como el don más alto que me ha sido otorgado
+        por las fuerzas del universo.
+        <span class="highlight">Gracias por existir. Gracias por ser tú.</span>
+        Gracias por cada mirada, cada risa, cada instante compartido —
+        son los tesoros más grandes que guardo en mi corazón.
+      </div>
+
+      <div class="mid-ornament" data-delay="3.0">♥ · ♥ · ♥</div>
+
+      <div class="paragraph" data-delay="3.2">
+        Sábete, pues, que <span class="glow-word">te amo</span> — no como se ama lo pasajero,
+        sino como Prometeo amó la humanidad: sin condición, sin medida,
+        dispuesto a cualquier sacrificio.
+        <span class="highlight">Te adoro sobre todas las cosas del cielo y de la tierra</span>,
+        y te coloco en el primer lugar de mi mundo —
+        siempre, en todo momento,
+        en cada uno de los días que los dioses me concedan vivir.
+      </div>
+
+      <div class="paragraph" data-delay="3.5">
+        Tú eres mi primera prioridad, mi mayor tesoro,
+        mi razón de cada amanecer.
+        Y mientras los astros sigan girando en la bóveda del infinito,
+        <span class="highlight">mi amor por ti será inquebrantable, eterno e incandescente</span>
+        — tan poderoso e inextinguible como el universo mismo
+        que nos observa desde las alturas.
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="divider" style="animation-delay:3.8s">
+      <div class="divider-line"></div>
+      <span class="divider-heart" style="animation-delay:.1s">♥</span>
+      <span class="divider-heart" style="animation-delay:.4s">♥</span>
+      <span class="divider-heart" style="animation-delay:.7s">♥</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- SIGNATURE -->
+    <div class="signature-block" data-delay="4.0">
+      <p class="sig-label">— CON AMOR ETERNO Y DEVOCIÓN INFINITA —</p>
+      <p class="sig-name">Fer ✦</p>
+      <p class="sig-hearts">♥ ♥ ♥ ♥ ♥</p>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="card-footer" data-delay="4.3">
+      ΣΦΡΑΓΙΣ · SELLADO POR LOS ASTROS · ΑΙΏΝΙΟ ΑΓΆΠΗ
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── STARS CANVAS ──
+const canvas = document.getElementById('stars-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+
+function resizeCanvas() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function initStars() {
+  stars = [];
+  for (let i = 0; i < 220; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.6 + 0.3,
+      alpha: Math.random(),
+      speed: Math.random() * 0.008 + 0.003,
+      phase: Math.random() * Math.PI * 2,
+      color: Math.random() > 0.7 ? '#cc88ff' : '#ffffff'
+    });
+  }
+}
+initStars();
+
+function drawStars(ts) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    s.alpha = 0.3 + 0.7 * Math.abs(Math.sin(ts * s.speed + s.phase));
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = s.color;
+    ctx.globalAlpha = s.alpha;
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(drawStars);
+}
+requestAnimationFrame(drawStars);
+
+// ── HEARTS RAIN ──
+const heartsLayer = document.getElementById('heartsLayer');
+const heartChars = ['♥','💜','♡','🔮'];
+const heartColors = ['#aa44ff','#cc88ff','#8800e6','#ff66cc','#eeccff'];
+
+function createHeart() {
+  const el = document.createElement('span');
+  el.className = 'heart-drop';
+  el.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
+  el.style.left = Math.random() * 100 + 'vw';
+  el.style.fontSize = (Math.random() * 20 + 12) + 'px';
+  el.style.color = heartColors[Math.floor(Math.random() * heartColors.length)];
+  el.style.animationDuration = (Math.random() * 6 + 5) + 's';
+  el.style.animationDelay = (Math.random() * 4) + 's';
+  heartsLayer.appendChild(el);
+  setTimeout(() => el.remove(), 11000);
+}
+setInterval(createHeart, 280);
+for (let i = 0; i < 18; i++) setTimeout(createHeart, i * 150);
+
+// ── CARD HEARTS (decorative) ──
+const cardHearts = document.getElementById('cardHearts');
+for (let i = 0; i < 14; i++) {
+  const h = document.createElement('span');
+  h.className = 'card-heart';
+  h.textContent = Math.random() > 0.5 ? '♥' : '♡';
+  h.style.left  = Math.random() * 90 + 5 + '%';
+  h.style.top   = Math.random() * 90 + 5 + '%';
+  h.style.fontSize = (Math.random() * 16 + 10) + 'px';
+  h.style.animationDuration = (Math.random() * 5 + 4) + 's';
+  h.style.animationDelay   = (Math.random() * 4) + 's';
+  cardHearts.appendChild(h);
+}
+
+// ── SCROLL REVEAL ──
+const paragraphs = document.querySelectorAll('.paragraph, .mid-ornament, .signature-block, .card-footer');
+paragraphs.forEach(el => {
+  const delay = el.dataset.delay || 0;
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.animationDelay = delay + 's';
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  observer.observe(el);
+});
+
+// ── CURSOR HEARTS ──
+document.addEventListener('mousemove', e => {
+  if (Math.random() > 0.88) {
+    const h = document.createElement('span');
+    h.style.cssText = `
+      position:fixed; left:${e.clientX}px; top:${e.clientY}px;
+      font-size:${Math.random()*12+8}px; color:#aa44ff;
+      pointer-events:none; z-index:9999;
+      animation: cursorHeart .9s ease forwards;
+      filter: drop-shadow(0 0 6px #8800e6);
+    `;
+    h.textContent = Math.random() > 0.5 ? '♥' : '♡';
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 900);
+  }
+});
+
+// ── INJECT cursor heart keyframe ──
+const style = document.createElement('style');
+style.textContent = `
+@keyframes cursorHeart {
+  from { opacity:1; transform: translate(-50%,-50%) scale(0.5); }
+  to   { opacity:0; transform: translate(-50%, -80px) scale(1.3) rotate(20deg); }
+}`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
